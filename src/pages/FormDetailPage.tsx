@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import detectivePodo from '../assets/detective_podo.png';
 import { ConversationBoard } from '../components/case/ConversationBoard';
@@ -5,6 +6,10 @@ import { NoteCard } from '../components/case/NoteCard';
 import { NoteSkeleton } from '../components/case/NoteSkeleton';
 import { findFormBySlug, type FormMeta } from '../constants/forms';
 import { useFormSubmissions } from '../hooks/useFormSubmissions';
+import { getOrderedAnswers, renderAnswer } from '../utils/answers';
+import type { FormSubmission } from '../types/jotform';
+
+type SortOrder = 'newest' | 'oldest';
 
 export function FormDetailPage() {
   const { formKey } = useParams<{ formKey: string }>();
@@ -227,6 +232,14 @@ function NotesList({
   const count = submissions.length;
   const isMessages = meta.key === 'MESSAGES';
 
+  const [search, setSearch] = useState('');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
+
+  const visibleSubmissions = useMemo(
+    () => filterAndSort(submissions, search, sortOrder),
+    [submissions, search, sortOrder],
+  );
+
   return (
     <>
       <div className="mb-8 flex items-center gap-4">
@@ -250,11 +263,27 @@ function NotesList({
       {isMessages ? (
         <ConversationBoard submissions={submissions} />
       ) : (
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {submissions.map((sub, i) => (
-            <NoteCard key={sub.id} submission={sub} meta={meta} index={i} />
-          ))}
-        </div>
+        <>
+          <NotesToolbar
+            search={search}
+            onSearchChange={setSearch}
+            sortOrder={sortOrder}
+            onSortChange={setSortOrder}
+            visibleCount={visibleSubmissions.length}
+            totalCount={count}
+            color={meta.color}
+          />
+
+          {visibleSubmissions.length === 0 ? (
+            <NoMatchesState onClear={() => setSearch('')} />
+          ) : (
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {visibleSubmissions.map((sub, i) => (
+                <NoteCard key={sub.id} submission={sub} meta={meta} index={i} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <div className="mt-12 flex flex-col items-center gap-3 text-center">
@@ -271,6 +300,172 @@ function NotesList({
         </Link>
       </div>
     </>
+  );
+}
+
+function filterAndSort(
+  submissions: FormSubmission[],
+  search: string,
+  sortOrder: SortOrder,
+): FormSubmission[] {
+  const term = search.trim().toLowerCase();
+
+  const filtered = term
+    ? submissions.filter((sub) => {
+        const haystack = getOrderedAnswers(sub.answers)
+          .map((a) => renderAnswer(a.answer))
+          .join(' ')
+          .toLowerCase();
+        return haystack.includes(term);
+      })
+    : submissions;
+
+  const sorted = [...filtered].sort((a, b) => {
+    const ta = new Date(a.created_at).getTime();
+    const tb = new Date(b.created_at).getTime();
+    return sortOrder === 'newest' ? tb - ta : ta - tb;
+  });
+
+  return sorted;
+}
+
+function NotesToolbar({
+  search,
+  onSearchChange,
+  sortOrder,
+  onSortChange,
+  visibleCount,
+  totalCount,
+  color,
+}: {
+  search: string;
+  onSearchChange: (v: string) => void;
+  sortOrder: SortOrder;
+  onSortChange: (v: SortOrder) => void;
+  visibleCount: number;
+  totalCount: number;
+  color: string;
+}) {
+  const isFiltering = search.trim().length > 0;
+
+  return (
+    <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-(--border) bg-white/80 p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:gap-4">
+      <div className="relative flex-1">
+        <svg
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--muted)"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+        </svg>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search notes by name, location, content…"
+          className="h-10 w-full rounded-xl border border-(--border) bg-white pl-9 pr-9 text-sm text-(--text-h) placeholder:text-(--muted) focus:border-transparent focus:outline-none focus:ring-2"
+          style={{ ['--tw-ring-color' as string]: color }}
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => onSearchChange('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-(--muted) hover:text-(--text-h)"
+            aria-label="Clear search"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="hidden text-xs font-semibold uppercase tracking-wider text-(--muted) sm:inline">
+          Sort
+        </span>
+        <div className="flex items-center rounded-xl border border-(--border) bg-(--bg-subtle) p-0.5">
+          <SortButton
+            active={sortOrder === 'newest'}
+            onClick={() => onSortChange('newest')}
+            color={color}
+          >
+            Newest
+          </SortButton>
+          <SortButton
+            active={sortOrder === 'oldest'}
+            onClick={() => onSortChange('oldest')}
+            color={color}
+          >
+            Oldest
+          </SortButton>
+        </div>
+      </div>
+
+      <div className="text-xs font-medium text-(--muted) sm:ml-1">
+        {isFiltering ? (
+          <>
+            <span className="font-bold" style={{ color }}>
+              {visibleCount}
+            </span>{' '}
+            / {totalCount}
+          </>
+        ) : (
+          <>
+            <span className="font-bold" style={{ color }}>
+              {totalCount}
+            </span>{' '}
+            total
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SortButton({
+  active,
+  onClick,
+  color,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  color: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+        active ? 'bg-white shadow-sm' : 'text-(--muted) hover:text-(--text-h)'
+      }`}
+      style={active ? { color } : undefined}
+    >
+      {children}
+    </button>
+  );
+}
+
+function NoMatchesState({ onClear }: { onClear: () => void }) {
+  return (
+    <div className="mx-auto flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-dashed border-(--border) bg-white/60 p-10 text-center">
+      <span className="text-4xl">🔎</span>
+      <p className="text-sm font-bold" style={{ color: 'var(--podo-navy)' }}>
+        No notes match your search.
+      </p>
+      <button
+        type="button"
+        onClick={onClear}
+        className="rounded-lg border border-(--border) bg-white px-3 py-1.5 text-xs font-semibold text-(--text-h) transition hover:shadow-sm"
+      >
+        Clear filter
+      </button>
+    </div>
   );
 }
 
