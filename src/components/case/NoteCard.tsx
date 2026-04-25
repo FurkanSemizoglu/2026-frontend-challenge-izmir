@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormMeta } from '../../constants/forms';
 import type { FormSubmission } from '../../types/jotform';
-import { getOrderedAnswers, renderAnswer } from '../../utils/answers';
+import { getOrderedAnswers, parseCoordinates, renderAnswer } from '../../utils/answers';
 import { formatDate, formatRelative } from '../../utils/date';
 import { NoteDecoration } from './NoteDecorations';
 
@@ -120,6 +120,38 @@ interface AnswerRowProps {
 }
 
 function AnswerRow({ label, value, color }: AnswerRowProps) {
+  const coords = parseCoordinates(value);
+
+  if (coords) {
+    return (
+      <div className="py-2">
+        <span
+          className="shrink-0 text-[11px] font-bold uppercase tracking-wider"
+          style={{ color }}
+        >
+          {label}
+        </span>
+        <p
+          className="mt-1 text-sm font-medium"
+          style={{ color: 'var(--podo-navy)' }}
+        >
+          {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
+        </p>
+        <div className="mt-2 overflow-hidden rounded-lg border border-(--border)">
+          <iframe
+            title={`Map ${coords.lat},${coords.lng}`}
+            width="100%"
+            height="160"
+            style={{ border: 0, display: 'block' }}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.008},${coords.lat - 0.005},${coords.lng + 0.008},${coords.lat + 0.005}&layer=mapnik&marker=${coords.lat},${coords.lng}`}
+          />
+        </div>
+      </div>
+    );
+  }
+
   const isLongValue = value.length > 80;
 
   return (
