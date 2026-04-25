@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import detectivePodo from '../assets/detective_podo.png';
+import { ConversationBoard } from '../components/case/ConversationBoard';
 import { NoteCard } from '../components/case/NoteCard';
 import { NoteSkeleton } from '../components/case/NoteSkeleton';
 import { findFormBySlug, type FormMeta } from '../constants/forms';
@@ -224,6 +225,8 @@ function NotesList({
   submissions: ReturnType<typeof useFormSubmissions>['submissions'];
 }) {
   const count = submissions.length;
+  const isMessages = meta.key === 'MESSAGES';
+
   return (
     <>
       <div className="mb-8 flex items-center gap-4">
@@ -235,18 +238,24 @@ function NotesList({
         />
         <div className="relative rounded-2xl rounded-bl-none bg-white px-5 py-3 shadow-sm">
           <p className="text-sm font-medium" style={{ color: 'var(--podo-navy)' }}>
-            {count === 1
-              ? "I found 1 piece of evidence. Let's take a closer look..."
-              : `I've gathered ${count} pieces of evidence. Let's review them carefully.`}
+            {isMessages
+              ? `I've intercepted ${count} messages across multiple channels. Let's see who's been talking...`
+              : count === 1
+                ? "I found 1 piece of evidence. Let's take a closer look..."
+                : `I've gathered ${count} pieces of evidence. Let's review them carefully.`}
           </p>
         </div>
       </div>
 
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {submissions.map((sub, i) => (
-          <NoteCard key={sub.id} submission={sub} meta={meta} index={i} />
-        ))}
-      </div>
+      {isMessages ? (
+        <ConversationBoard submissions={submissions} />
+      ) : (
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {submissions.map((sub, i) => (
+            <NoteCard key={sub.id} submission={sub} meta={meta} index={i} />
+          ))}
+        </div>
+      )}
 
       <div className="mt-12 flex flex-col items-center gap-3 text-center">
         <span className="text-2xl">🐾</span>
