@@ -1,73 +1,143 @@
-# React + TypeScript + Vite
+# Detective Podo · 2026 Frontend Challenge (İzmir)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dedektif Podo'nun davasını çözmesine yardım eden, **JotForm API** üzerinden canlı veri çeken React tabanlı bir vaka panosu uygulaması. Beş farklı form kategorisindeki ipuçları (check-in'ler, görgü tanıkları, mesajlar, kişisel notlar ve isimsiz ihbarlar) tek bir interaktif arayüzde toplanır.
 
-Currently, two official plugins are available:
+## Özellikler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Vaka Panosu** — JotForm hesabınızdan çekilen 5 form kategorisinin özet kartları.
+- **Form Detayı** — Her form için tüm gönderimlerin "delil notu" stilinde listelendiği sayfa.
+- **Şüpheli Listesi** — Tüm gönderimlerden otomatik olarak çıkarılan kişilerin profilleri ve geçmişleri.
+- **Canlı Veri** — Sahte veri yok; her ziyarette JotForm API'sinden taze çekim.
+- **Modern Stack** — React 19, TypeScript, Vite 8, Tailwind CSS 4, React Router 7.
 
-## React Compiler
+## Gereksinimler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Node.js** 20.19+ veya 22.12+ (Vite 8 için)
+- **npm** (veya pnpm / yarn)
+- Geçerli bir **JotForm API anahtarı** ([buradan alabilirsiniz](https://www.jotform.com/myaccount/api))
 
-## Expanding the ESLint configuration
+## Kurulum
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1) Depoyu klonlayın
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone <repo-url>
+cd 2026-frontend-challenge-izmir
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2) Bağımlılıkları yükleyin
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+### 3) Ortam değişkenlerini ayarlayın
+
+Kök dizinde `.env.local` adında bir dosya oluşturun (`.env.example` dosyasını şablon olarak kullanabilirsiniz):
+
+```bash
+VITE_JOTFORM_API_KEY=buraya_jotform_api_anahtarinizi_yazin
+VITE_JOTFORM_BASE_URL=https://api.jotform.com
+```
+
+> **Not:** API anahtarı yoksa uygulama çalışır ama formlar yüklenmez ve konsola uyarı düşer.
+
+### 4) JotForm formlarını eşleştirin (opsiyonel)
+
+Uygulama 5 belirli form ID'sini bekler. Kendi JotForm hesabınızı kullanıyorsanız `src/constants/forms.ts` içindeki `id` değerlerini kendi form ID'lerinizle değiştirin:
+
+```typescript
+CHECKINS:        { id: '261134527667966', ... },
+SIGHTINGS:       { id: '261133720555956', ... },
+MESSAGES:        { id: '261133651963962', ... },
+PERSONAL_NOTES:  { id: '261134449238963', ... },
+ANONYMOUS_TIPS:  { id: '261134430330946', ... },
+```
+
+## Çalıştırma
+
+### Geliştirme sunucusu
+
+```bash
+npm run dev
+```
+
+Tarayıcınızda `http://localhost:5173` adresini açın. HMR (Hot Module Replacement) aktiftir.
+
+### Production build
+
+```bash
+npm run build
+```
+
+Çıktı `dist/` klasörüne üretilir.
+
+### Build önizlemesi
+
+```bash
+npm run preview
+```
+
+### Lint kontrolü
+
+```bash
+npm run lint
+```
+
+## Komutlar Özeti
+
+| Komut             | Açıklama                                        |
+| ----------------- | ----------------------------------------------- |
+| `npm run dev`     | Vite dev sunucusunu başlatır (varsayılan: 5173) |
+| `npm run build`   | TypeScript kontrolü + production build          |
+| `npm run preview` | Production build'i lokalde sunar                |
+| `npm run lint`    | ESLint ile kod kalitesi kontrolü                |
+
+## Sayfalar / Rotalar
+
+| Yol               | Sayfa             | Açıklama                                    |
+| ----------------- | ----------------- | ------------------------------------------- |
+| `/`               | `HomePage`        | Ana sayfa, kahraman bölümü ve ipucu kartları |
+| `/case`           | `CaseBoardPage`   | 5 form kategorisinin özet panosu            |
+| `/case/:formKey`  | `FormDetailPage`  | Seçilen formun tüm gönderimleri              |
+| `/suspects`       | `SuspectsPage`    | Tüm gönderimlerden çıkarılan kişiler         |
+
+## Proje Yapısı
+
+```
+src/
+├── api/             # Axios client (JotForm API)
+├── assets/          # Görseller (detective_podo.png)
+├── components/
+│   ├── case/        # NoteCard, EvidenceCard, ConversationBoard, ...
+│   └── layout/      # Navbar
+├── constants/       # forms.ts (form ID/etiket eşlemeleri)
+├── hooks/           # useUserForms, useFormSubmissions, useAllSubmissions, ...
+├── pages/           # HomePage, CaseBoardPage, FormDetailPage, SuspectsPage
+├── services/        # formService, submissionService (cache'li API çağrıları)
+├── types/           # jotform.ts (TypeScript tipleri)
+├── utils/           # answers, messages, persons, date yardımcıları
+├── App.tsx          # Router tanımları
+├── main.tsx         # React giriş noktası
+└── index.css        # Global stiller + Tailwind
+```
+
+## Teknoloji Yığını
+
+- **React 19** + **TypeScript**
+- **Vite 8** — geliştirme ve build aracı
+- **Tailwind CSS 4** — `@tailwindcss/vite` plugin'i ile
+- **React Router DOM 7** — istemci tarafı yönlendirme
+- **Axios** — JotForm API istekleri
+- **ESLint** + **typescript-eslint** — statik analiz
+
+## Sorun Giderme
+
+- **`VITE_JOTFORM_API_KEY is not set` uyarısı** — `.env.local` dosyasını oluşturup geçerli bir anahtar yazdığınızdan emin olun. Dosya değişikliğinden sonra dev sunucusunu yeniden başlatın.
+- **`401: API anahtarı geçersiz veya eksik`** — JotForm hesabınızdan yeni bir API anahtarı üretip izinlerini kontrol edin.
+- **`429: Çok fazla istek gönderildi`** — JotForm rate limit'ine takıldınız; kısa bir süre bekleyin. Servisler bellek içi cache kullanır, sayfa içi tekrar gezintiler yeni istek üretmez.
+- **Boş kategori kartları** — `src/constants/forms.ts` içindeki form ID'leri sizin hesabınızdaki ID'lerle eşleşmiyor olabilir.
+
+## Lisans
+
+Bu proje 2026 Frontend Challenge (İzmir) kapsamında hazırlanmıştır.
