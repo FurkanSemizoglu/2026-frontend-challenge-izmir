@@ -47,7 +47,6 @@ export function EvidenceCard({ form, meta }: EvidenceCardProps) {
           <p className="text-xl font-extrabold" style={{ color: meta.color }}>
             {count}
           </p>
-          <p className="text-xs text-(--muted)">entries</p>
         </div>
         <div className="ml-auto text-right">
           {lastSeen ? (
