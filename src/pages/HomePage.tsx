@@ -2,26 +2,20 @@ import { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import detectivePodo from '../assets/detective_podo.png';
 import { FORM_LIST, type FormMeta } from '../constants/forms';
-import { useProjectForms } from '../hooks/useProjectForms';
 
 const LEAD_TILTS = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2', '-rotate-1'];
 
 export function HomePage() {
-  const { countsById, totalCount, isLoading } = useProjectForms();
-
   return (
     <main className="flex flex-1 flex-col">
-      <HeroSection
-        totalClues={isLoading ? '…' : totalCount.toString()}
-        openLeads={FORM_LIST.length.toString()}
-      />
-      <LeadsSection countsById={countsById} isLoading={isLoading} />
+      <HeroSection openLeads={FORM_LIST.length.toString()} />
+      <LeadsSection />
       <HowItWorksSection />
     </main>
   );
 }
 
-function HeroSection({ totalClues, openLeads }: { totalClues: string; openLeads: string }) {
+function HeroSection({ openLeads }: { openLeads: string }) {
   return (
     <section className="relative overflow-hidden" style={{ background: 'var(--podo-navy)' }}>
       <div
@@ -43,7 +37,7 @@ function HeroSection({ totalClues, openLeads }: { totalClues: string; openLeads:
 
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-6 pb-20 pt-16 lg:grid-cols-[1fr_1.15fr] lg:gap-16 lg:pb-28 lg:pt-24">
         <DetectivePolaroid />
-        <HeroCopy totalClues={totalClues} openLeads={openLeads} />
+        <HeroCopy openLeads={openLeads} />
       </div>
     </section>
   );
@@ -84,7 +78,7 @@ function DetectivePolaroid() {
   );
 }
 
-function HeroCopy({ totalClues, openLeads }: { totalClues: string; openLeads: string }) {
+function HeroCopy({ openLeads }: { openLeads: string }) {
   return (
     <div className="text-center lg:text-left">
       <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70 backdrop-blur">
@@ -147,8 +141,7 @@ function HeroCopy({ totalClues, openLeads }: { totalClues: string; openLeads: st
         </a>
       </div>
 
-      <div className="mt-12 grid grid-cols-3 gap-4 border-t border-white/10 pt-6 text-center lg:text-left">
-        <Stat label="Total clues" value={totalClues} />
+      <div className="mt-12 grid grid-cols-2 gap-4 border-t border-white/10 pt-6 text-center lg:text-left">
         <Stat label="Open leads" value={openLeads} />
         <Stat
           label="JotForm sync"
@@ -167,13 +160,7 @@ function HeroCopy({ totalClues, openLeads }: { totalClues: string; openLeads: st
   );
 }
 
-function LeadsSection({
-  countsById,
-  isLoading,
-}: {
-  countsById: Map<string, number>;
-  isLoading: boolean;
-}) {
+function LeadsSection() {
   return (
     <section id="leads" className="relative" style={{ background: 'var(--bg-subtle)' }}>
       <div
@@ -209,8 +196,6 @@ function LeadsSection({
             <LeadCard
               key={form.key}
               form={form}
-              count={countsById.get(form.id) ?? null}
-              isLoading={isLoading}
               index={i + 1}
               tilt={LEAD_TILTS[i % LEAD_TILTS.length]}
             />
@@ -310,14 +295,10 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
 
 function LeadCard({
   form,
-  count,
-  isLoading,
   index,
   tilt,
 }: {
   form: FormMeta;
-  count: number | null;
-  isLoading: boolean;
   index: number;
   tilt: string;
 }) {
@@ -350,15 +331,7 @@ function LeadCard({
         <p className="mt-1 text-sm text-(--text)">{form.description}</p>
       </div>
 
-      <div className="mt-2 flex items-end justify-between border-t border-dashed border-(--border) pt-3">
-        <div>
-          <p className="text-2xl font-extrabold" style={{ color: form.color }}>
-            {isLoading ? '…' : (count ?? '—')}
-          </p>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-(--muted)">
-            entries waiting
-          </p>
-        </div>
+      <div className="mt-2 flex items-end justify-end border-t border-dashed border-(--border) pt-3">
         <span
           className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold transition-all group-hover:gap-2"
           style={{ background: `${form.color}1a`, color: form.color }}

@@ -9,7 +9,6 @@ interface EvidenceCardProps {
 }
 
 export function EvidenceCard({ form, meta }: EvidenceCardProps) {
-  const count = parseInt(form.count, 10) || 0;
   const hasNew = (parseInt(form.new, 10) || 0) > 0;
   const lastSeen = form.last_submission ? formatDate(form.last_submission) : null;
 
@@ -42,23 +41,11 @@ export function EvidenceCard({ form, meta }: EvidenceCardProps) {
         <p className="text-sm text-(--text)">{meta.description}</p>
       </div>
 
-      <div className="flex items-center gap-4 border-t border-(--border) pt-4">
-        <div>
-          <p className="text-xl font-extrabold" style={{ color: meta.color }}>
-            {count}
-          </p>
+      {lastSeen && (
+        <div className="flex items-center justify-end border-t border-(--border) pt-4">
+          <p className="text-xs font-medium text-(--text-h)">{lastSeen}</p>
         </div>
-        <div className="ml-auto text-right">
-          {lastSeen ? (
-            <>
-              <p className="text-xs font-medium text-(--text-h)">{lastSeen}</p>
-              <p className="text-xs text-(--muted)">last entry</p>
-            </>
-          ) : (
-            <p className="text-xs text-(--muted)">No entries yet</p>
-          )}
-        </div>
-      </div>
+      )}
 
       <div
         className="flex items-center gap-1 text-xs font-semibold transition-colors group-hover:text-(--podo-orange)"
