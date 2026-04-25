@@ -24,7 +24,7 @@ export function useUserForms(): UseUserFormsResult {
         if (!cancelled) setForms(response.content ?? []);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch forms');
+          setError(err instanceof Error ? err.message : 'Formlar yüklenirken bir hata oluştu.');
         }
       } finally {
         if (!cancelled) setIsLoading(false);

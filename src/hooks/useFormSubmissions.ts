@@ -28,7 +28,7 @@ export function useFormSubmissions(formId: string): UseFormSubmissionsResult {
         if (!cancelled) setSubmissions(response.content ?? []);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch submissions');
+          setError(err instanceof Error ? err.message : 'Gönderiler yüklenirken bir hata oluştu.');
         }
       } finally {
         if (!cancelled) setIsLoading(false);
