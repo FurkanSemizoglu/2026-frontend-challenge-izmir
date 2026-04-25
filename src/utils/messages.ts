@@ -1,5 +1,5 @@
 import type { FormSubmission, SubmissionAnswer } from '../types/jotform';
-import { renderAnswer } from './answers';
+import { normalizeLabel, renderAnswer } from './answers';
 
 export interface ParsedMessage {
   id: string;
@@ -52,7 +52,7 @@ export function parseMessages(submissions: FormSubmission[]): ParsedMessage[] {
 
       const extras = all
         .filter((a) => !usedNames.has(a.name) && renderAnswer(a.answer))
-        .map((a) => ({ label: a.text, value: renderAnswer(a.answer) }));
+        .map((a) => ({ label: normalizeLabel(a.text), value: renderAnswer(a.answer) }));
 
       return { id: sub.id, sender, receiver, body, date: sub.created_at, extras };
     })

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormMeta } from '../../constants/forms';
 import type { FormSubmission } from '../../types/jotform';
-import { getOrderedAnswers, parseCoordinates, renderAnswer } from '../../utils/answers';
+import { getOrderedAnswers, normalizeLabel, parseCoordinates, renderAnswer } from '../../utils/answers';
 import { formatDate, formatRelative } from '../../utils/date';
 import { NoteDecoration } from './NoteDecorations';
 
@@ -70,7 +70,7 @@ export function NoteCard({ submission, meta, index }: NoteCardProps) {
           {answers.map((answer) => (
             <AnswerRow
               key={answer.name}
-              label={answer.text}
+              label={normalizeLabel(answer.text)}
               value={renderAnswer(answer.answer)}
               color={meta.color}
             />

@@ -1,5 +1,22 @@
 import type { SubmissionAnswer } from '../types/jotform';
 
+const LABEL_MAP: Record<string, string> = {
+  fullName: 'Full Name',
+  personName: 'Person Name',
+  seenWith: 'Seen With',
+  suspectName: 'Suspect Name',
+};
+
+function camelToTitle(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
+export function normalizeLabel(raw: string): string {
+  return LABEL_MAP[raw] ?? camelToTitle(raw);
+}
+
 export function renderAnswer(answer: SubmissionAnswer['answer']): string {
   if (answer === undefined || answer === null || answer === '') return '';
   if (typeof answer === 'string') return answer;
