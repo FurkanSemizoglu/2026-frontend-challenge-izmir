@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { FormMeta } from '../../constants/forms';
 import type { JotFormForm } from '../../types/jotform';
-import { formatDate } from '../../utils/date';
 
 interface EvidenceCardProps {
   form: JotFormForm;
@@ -10,7 +9,6 @@ interface EvidenceCardProps {
 
 export function EvidenceCard({ form, meta }: EvidenceCardProps) {
   const hasNew = (parseInt(form.new, 10) || 0) > 0;
-  const lastSeen = form.last_submission ? formatDate(form.last_submission) : null;
 
   return (
     <Link
@@ -41,14 +39,8 @@ export function EvidenceCard({ form, meta }: EvidenceCardProps) {
         <p className="text-sm text-(--text)">{meta.description}</p>
       </div>
 
-      {lastSeen && (
-        <div className="flex items-center justify-end border-t border-(--border) pt-4">
-          <p className="text-xs font-medium text-(--text-h)">{lastSeen}</p>
-        </div>
-      )}
-
       <div
-        className="flex items-center gap-1 text-xs font-semibold transition-colors group-hover:text-(--podo-orange)"
+        className="flex items-center gap-1 border-t border-(--border) pt-4 text-xs font-semibold transition-colors group-hover:text-(--podo-orange)"
         style={{ color: meta.color }}
       >
         <span>View Evidence</span>
