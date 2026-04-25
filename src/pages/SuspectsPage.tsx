@@ -205,7 +205,7 @@ function PersonCard({
             <span
               key={f.key}
               className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-              style={{ background: `${f.color}1a`, color: f.color }}
+              style={{ background: f.bgTint, color: f.color }}
             >
               {f.icon} {f.label}
             </span>
@@ -213,7 +213,14 @@ function PersonCard({
         </div>
       </div>
 
-      <span className="mt-1 text-xs font-semibold text-(--muted) transition group-hover:text-(--text-h)">
+      <span
+        className="mt-1 shrink-0 rounded-full border px-3 py-1 text-xs font-bold transition-all group-hover:scale-105"
+        style={{
+          color: 'var(--podo-blue)',
+          borderColor: 'var(--podo-blue)',
+          background: '#eef7ff',
+        }}
+      >
         View →
       </span>
     </button>
